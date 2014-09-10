@@ -13,21 +13,6 @@ var prizer = {
     },
     
     
-    getUserPrizes: function(userId, callback) {
-        prizer.storageEngine.getSavedPrizes(userId, callback);
-    },
-    
-    
-    addUserPrize: function(userId, prizeId, callback) {
-        prizer.storageEngine.addPrize(userId, prizeId, callback);
-    },
-    
-    
-    removeUserPrize: function(userId, prizeId, callback) {
-        prizer.storageEngine.removePrize(userId, prizeId, callback);
-    },
-    
-    
     createMatch: function() {
         return matches.createMatch();
     },
