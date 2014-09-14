@@ -8,11 +8,6 @@ var matches = require('./matches');
 var prizer = {
     
     
-    setStorageEngine: function(_storageEngine_) {
-        prizer.storageEngine = _storageEngine_;
-    },
-    
-    
     createMatch: function() {
         return matches.createMatch();
     },
