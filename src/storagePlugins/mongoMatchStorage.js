@@ -1,6 +1,19 @@
 'use strict';
 
-var MatchGoose;
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+
+var matchSchema = new Schema({
+    players: [],
+    prizes: [],
+    startDate: Date,
+    updateDate: Date
+}, {
+    capped: 1024
+});
+
+var MatchGoose = mongoose.model('Match', matchSchema);
+
 
 var self = {
     
@@ -28,6 +41,16 @@ var self = {
      */
     getMatch: function(matchId, callback) {
         MatchGoose.findById(matchId, callback);
+    },
+    
+    
+    /**
+     * Delete a match
+     * @param {ObjectId} matchId
+     * @param {Function} callback
+     */
+    deleteMatch: function(matchId, callback) {
+        MatchGoose.remove({_id: matchId}, callback);
     },
     
     
