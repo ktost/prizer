@@ -1,26 +1,26 @@
 'use strict';
 
 var _ = require('lodash');
-var PrizeList = require('PrizeList');
-var PlayerList = require('PlayerList');
-var matches = require('matches');
 
 
 /**
  * Stores a list of users and a list of prizes
  * @constructor
+ * @param {*} storage - A storage plugin
  * @param {array} initialPlayers - A list of players to start with
  * @param {array} initialPrizes - A list of prizes to start with
+ * @param {Function} callback
  */
-var Match = function(initialPlayers, initialPrizes) {
-    this.matches = matches;
-    this.playerList = new PlayerList(initialPlayers);
-    this.prizeList = new PrizeList(initialPrizes);
+var Match = function(storage, initialPlayers, initialPrizes, callback) {
+    this.matchId = storage.generateId();
     this.status = Match.OPEN;
-    matches.addMatch(this);
+    this.storage = storage;
+    this.storage.createMatch(this.matchId, initialPlayers, initialPrizes, callback);
+    return this.matchId;
 };
 
 Match.prototype.OPEN = 'open';
+Match.prototype.CLOSING = 'closing';
 Match.prototype.CLOSED = 'closed';
 Match.prototype.REMOVED = 'removed';
 
@@ -28,28 +28,48 @@ Match.prototype.REMOVED = 'removed';
 /**
  * Shortcuts
  */
-Match.prototype.addPrize = PrizeList.addPrize;
-Match.prototype.removePrize = PrizeList.removePrize;
-Match.prototype.addPlayer = PlayerList.addPlayer;
-Match.prototype.removePlayer = PlayerList.removePlayer;
-Match.prototype.setPlace = PlayerList.setPlace;
-Match.prototype.setWinner = PlayerList.setWinner;
-Match.prototype.getPrizes = PlayerList.getPrizes;
+Match.prototype.addPrize = function(prize, callback) {
+    this.storage.addPrize(this.matchId, prize, callback);
+};
+
+Match.prototype.removePrize = function(prize, callback) {
+    this.storage.removePrize(this.matchId, prize, callback);
+};
+
+Match.prototype.addPlayer = function(player, callback) {
+    this.storage.addPlayer(this.matchId, player, callback);
+};
+
+Match.prototype.removePlayer = function(player, callback) {
+    this.storage.removePlayer(this.matchId, player, callback);
+};
 
 
 /**
  * Award prizes to users according to their place
  * @returns {[{player: *, prizes: [], place: number}]}
  */
-Match.prototype.finish = function() {
-    if(this.status === Match.OPEN) {
-        this.status = Match.CLOSED;
-        _.each(this.playerList.members, function(member) {
-            member.prizes = this.prizeList.getPrizesForPlace(member.place);
-        });
-        return this.playerList.members;
+Match.prototype.finish = function(places, callback) {
+    
+    if(this.status !== Match.OPEN) {
+        return callback('Match.status is ' + this.status);
     }
+
+    this.status = Match.CLOSING;
+    
+    this.storage.getMatch(this.matchId, function(err, data) {
+        if(err) {
+            return callback(err);
+        }
+        
+    });
+    
+    
+    return this.playerList.members;
 };
+
+
+
 
 
 /**
@@ -68,7 +88,6 @@ Match.prototype.cancel = function() {
 Match.prototype.remove = function() {
     if(this.status !== Match.REMOVED) {
         this.status = Match.REMOVED;
-        this.matches.removeMatch(this);
         delete this.matches;
         delete this.players;
         delete this.prizes;

@@ -20,12 +20,14 @@ var self = {
     
     /**
      * Create a new match
+     * @param {ObjectId} matchId
      * @param {Array} initialPlayers
      * @param {Array} initialPrizes
      * @param {Function} callback
      */
-    createMatch: function(initialPlayers, initialPrizes, callback) {
+    createMatch: function(matchId, initialPlayers, initialPrizes, callback) {
         MatchGoose.ceate({
+            _id: matchId,
             players: initialPlayers, 
             prizes: initialPrizes,
             startDate: new Date(),
@@ -85,6 +87,16 @@ var self = {
     
     
     /**
+     * Retrieve all players in this match
+     * @param {ObjectId} matchId
+     * @param {Function} callback
+     */ 
+    getPlayers: function(matchId, callback) {
+        self.getProperty(matchId, 'players', callback);
+    },
+    
+    
+    /**
      * Add a prize to a match
      * @param {ObjectId} matchId
      * @param {*} prize
@@ -111,6 +123,32 @@ var self = {
             {$removeFromSet: {prizes: prize}, $set: {updateDate: new Date()}},
             callback
         );
+    },
+    
+    
+    /**
+     * Retrieve all prizes in this match
+     * @param {ObjectId} matchId
+     * @param {Function} callback
+     */ 
+    getPrizes: function(matchId, callback) {
+        self.getProperty(matchId, 'prizes', callback);
+    },
+    
+    
+    /**
+     * Retrieve a property of match from the db
+     * @param {ObjectId} matchId
+     * @param {String} key
+     * @param {Function} callback
+     */ 
+    getProperty: function(matchId, key, callback) {
+        MatchGoose.findById(matchId, function(err, match) {
+            if(err) {
+                return callback(err);
+            }
+            return callback(null, match[key]);
+        });
     }
     
     
