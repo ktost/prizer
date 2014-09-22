@@ -1,5 +1,6 @@
 'use strict';
 
+
 var _ = require('lodash');
 
 
@@ -26,22 +27,48 @@ Match.prototype.REMOVED = 'removed';
 
 
 /**
+ * Wrap incoming data into a standardized format
+ * @param {*} input
+ * @returns {{id: String, data: *}}
+ */
+Match.prototype.toIdObj = function(input) {
+    var obj = {};
+    obj.data = input;
+    
+    if(_.isString(input) || _.isNumber(input)) {
+        obj.id = input;
+    }
+    
+    if(_.isObject(input)) {
+        if(_.isDefined(input._id)) {
+            obj.id = input._id;
+        }
+        if(_.isDefined(input.id)) {
+            obj.id = input.id;
+        }
+    }
+    
+    return obj;
+};
+
+
+/**
  * Shortcuts
  */
 Match.prototype.addPrize = function(prize, callback) {
-    this.storage.addPrize(this.matchId, prize, callback);
+    this.storage.addPrize(this.matchId, this.toIdObj(prize), callback);
 };
 
 Match.prototype.removePrize = function(prize, callback) {
-    this.storage.removePrize(this.matchId, prize, callback);
+    this.storage.removePrize(this.matchId, this.toIdObj(prize), callback);
 };
 
 Match.prototype.addPlayer = function(player, callback) {
-    this.storage.addPlayer(this.matchId, player, callback);
+    this.storage.addPlayer(this.matchId, this.toIdObj(player), callback);
 };
 
 Match.prototype.removePlayer = function(player, callback) {
-    this.storage.removePlayer(this.matchId, player, callback);
+    this.storage.removePlayer(this.matchId, this.toIdObj(player), callback);
 };
 
 
@@ -61,11 +88,8 @@ Match.prototype.finish = function(places, callback) {
         if(err) {
             return callback(err);
         }
-        
+        return callback(null, data);
     });
-    
-    
-    return this.playerList.members;
 };
 
 
@@ -88,9 +112,7 @@ Match.prototype.cancel = function() {
 Match.prototype.remove = function() {
     if(this.status !== Match.REMOVED) {
         this.status = Match.REMOVED;
-        delete this.matches;
-        delete this.players;
-        delete this.prizes;
+        delete this.storage;
     }
 };
 

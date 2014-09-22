@@ -59,13 +59,16 @@ var self = {
     /**
      * Add a player to a match
      * @param {ObjectId} matchId
-     * @param {*} player
+     * @param {{id: String, data: *}} player
      * @param {Function} callback
      */
     addPlayer: function(matchId, player, callback) {
         MatchGoose.update (
             {_id: matchId}, 
-            {$addToSet: {players: player}, $set: {updateDate: new Date()}}, 
+            {
+                $push: {players: player}, 
+                $set: {updateDate: new Date()}
+            }, 
             callback
         );
     },
@@ -74,13 +77,16 @@ var self = {
     /**
      * Remove a player from a match
      * @param {ObjectId} matchId
-     * @param {*} player
+     * @param {{id: String, data: *}} player
      * @param {Function} callback
      */ 
     removePlayer: function(matchId, player, callback) {
         MatchGoose.update (
             {_id: matchId},
-            {$removeFromSet: {players: player}, $set: {updateDate: new Date()}},
+            {
+                $pull: {players: {id: player.id}}, 
+                $set: {updateDate: new Date()}
+            },
             callback
         );
     },
@@ -99,13 +105,16 @@ var self = {
     /**
      * Add a prize to a match
      * @param {ObjectId} matchId
-     * @param {*} prize
+     * @param {{id: String, data: *}} prize
      * @param {Function} callback
      */ 
     addPrize: function(matchId, prize, callback) {
         MatchGoose.update (
             {_id: matchId}, 
-            {$addToSet: {prizes: prize}, $set: {updateDate: new Date()}}, 
+            {
+                $push: {prizes: prize},
+                $set: {updateDate: new Date()}
+            }, 
             callback
         );
     },
@@ -114,13 +123,16 @@ var self = {
     /**
      * Remove a prize from a match
      * @param {ObjectId} matchId
-     * @param {*} prize
+     * @param {{id: String, data: *}} prize
      * @param {Function} callback
      */ 
     removePrize: function(matchId, prize, callback) {
         MatchGoose.update (
             {_id: matchId},
-            {$removeFromSet: {prizes: prize}, $set: {updateDate: new Date()}},
+            {
+                $pull: {prizes: {id: prize.id}},
+                $set: {updateDate: new Date()}
+            },
             callback
         );
     },
