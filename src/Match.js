@@ -2,6 +2,7 @@
 
 
 var _ = require('lodash');
+var prizeFns = require('prizeFns');
 
 
 /**
@@ -12,18 +13,15 @@ var _ = require('lodash');
  * @param {array} initialPrizes - A list of prizes to start with
  * @param {Function} callback
  */
-var Match = function(storage, initialPlayers, initialPrizes, callback) {
-    this.matchId = storage.generateId();
+var Match = function(storage, matchId) {
     this.status = Match.OPEN;
+    this.matchId = matchId;
     this.storage = storage;
-    this.storage.createMatch(this.matchId, initialPlayers, initialPrizes, callback);
-    return this.matchId;
+    return this;
 };
 
 Match.prototype.OPEN = 'open';
-Match.prototype.CLOSING = 'closing';
 Match.prototype.CLOSED = 'closed';
-Match.prototype.REMOVED = 'removed';
 
 
 /**
@@ -71,50 +69,49 @@ Match.prototype.removePlayer = function(player, callback) {
     this.storage.removePlayer(this.matchId, this.toIdObj(player), callback);
 };
 
+Match.prototype.setPlayerRank = function(player, rank, callback) {
+    this.storage.setPlayerRank(this.matchId, this.toIdObj(player), rank, callback);
+};
+
+Match.prototype.setPlayerRanks = function(players, callback) {
+    this.storage.setPlayerRanks(this.matchId, players, callback);
+};
+
+
 
 /**
- * Award prizes to users according to their place
- * @returns {[{player: *, prizes: [], place: number}]}
+ * Award prizes to players based on their rank
+ * @param {Function} callback
  */
-Match.prototype.finish = function(places, callback) {
-    
+Match.prototype.awardPrizes = function(callback) {
     if(this.status !== Match.OPEN) {
         return callback('Match.status is ' + this.status);
     }
-
-    this.status = Match.CLOSING;
     
     this.storage.getMatch(this.matchId, function(err, data) {
         if(err) {
             return callback(err);
         }
-        return callback(null, data);
+        var results = prizeFns.assignPrizes(data.players, data.prizes);
+        return callback(null, results);
     });
 };
 
 
 
-
-
 /**
- * Close this match without awarding any prizes
+ * Clears saved data from storage
+ * @param {Function} callback
  */
-Match.prototype.cancel = function() {
-    if(this.status === Match.OPEN) {
-        this.status = Match.CLOSED;
+Match.prototype.close = function(callback) {
+    if(this.status !== Match.OPEN) {
+        return callback('Match.status is ' + this.status);
     }
+    this.status = Match.CLOSED;
+    this.storage.deleteMatch(this.matchId, callback);
 };
 
 
-/**
- * Cleanup for garbage collector
- */
-Match.prototype.remove = function() {
-    if(this.status !== Match.REMOVED) {
-        this.status = Match.REMOVED;
-        delete this.storage;
-    }
-};
 
 
 module.exports = Match;
