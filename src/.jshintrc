@@ -2,7 +2,7 @@
     "node": true,
     "esnext": true,
     "bitwise": true,
-    "camelcase": false,
+    "camelcase": true,
     "curly": true,
     "eqeqeq": true,
     "immed": true,
@@ -15,11 +15,9 @@
     "unused": true,
     "strict": true,
     "trailing": true,
-    "globals": {
-        "describe": true,
-        "it": true,
-        "expect": true,
-        "beforeEach": true,
-        "afterEach": true
-    }
+    "maxparams": 3,
+    "maxdepth": 3,
+    "maxstatements": 12,
+    "maxcomplexity": 5,
+    "globals": {}
 }
