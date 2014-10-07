@@ -24,53 +24,30 @@ Match.prototype.OPEN = 'open';
 Match.prototype.CLOSED = 'closed';
 
 
-/**
- * Wrap incoming data into a standardized format
- * @param {*} input
- * @returns {{id: String, data: *}}
- */
-Match.prototype.toIdObj = function(input) {
-    var obj = {};
-    obj.data = input;
-    
-    if(_.isString(input) || _.isNumber(input)) {
-        obj.id = input;
-    }
-    
-    if(_.isObject(input)) {
-        if(_.isDefined(input._id)) {
-            obj.id = input._id;
-        }
-        if(_.isDefined(input.id)) {
-            obj.id = input.id;
-        }
-    }
-    
-    return obj;
-};
+
 
 
 /**
  * Shortcuts
  */
 Match.prototype.addPrize = function(prize, callback) {
-    this.storage.addPrize(this.matchId, this.toIdObj(prize), callback);
+    this.storage.addPrize(this.matchId, this._toIdObj(prize), callback);
 };
 
 Match.prototype.removePrize = function(prize, callback) {
-    this.storage.removePrize(this.matchId, this.toIdObj(prize), callback);
+    this.storage.removePrize(this.matchId, this._toIdObj(prize), callback);
 };
 
 Match.prototype.addPlayer = function(player, callback) {
-    this.storage.addPlayer(this.matchId, this.toIdObj(player), callback);
+    this.storage.addPlayer(this.matchId, this._toIdObj(player), callback);
 };
 
 Match.prototype.removePlayer = function(player, callback) {
-    this.storage.removePlayer(this.matchId, this.toIdObj(player), callback);
+    this.storage.removePlayer(this.matchId, this._toIdObj(player), callback);
 };
 
 Match.prototype.setPlayerRank = function(player, rank, callback) {
-    this.storage.setPlayerRank(this.matchId, this.toIdObj(player), rank, callback);
+    this.storage.setPlayerRank(this.matchId, this._toIdObj(player), rank, callback);
 };
 
 Match.prototype.setPlayerRanks = function(players, callback) {
