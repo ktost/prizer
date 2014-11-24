@@ -1,6 +1,8 @@
 prizer
 ======
 
+I REQUEST MORE JIGG ACTIVITY pls
+
 Track and assign things like prizes, items, and trophies. Prizes can be granted based on the outcome of matches, or manually assigned as needed.
 
 
